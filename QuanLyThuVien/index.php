@@ -226,4 +226,4 @@ switch ($action) {
 include "footer.php";
 ?>
 
-<script src="admin/Controller/signlog9.js"></script>
+<script src="ATBM_SGU/QuanLyThuVien/admin/Controller/signlog9.js"></script>
