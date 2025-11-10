@@ -448,7 +448,7 @@ require 'admin/DAO/database/connect.php';
 
                                 console.log("đã nhấn");
                                 $.ajax({
-                                    url: '/QuanLyThuVien/admin/DAO/dn_dk/logout.php',
+                                    url: '/ATBM_SGU/QuanLyThuVien/admin/DAO/dn_dk/logout.php',
                                     type: 'POST',
                                     success: function (response) {
                                         try {
@@ -456,7 +456,7 @@ require 'admin/DAO/database/connect.php';
                                             if (data.status === 'success') {
                                                 localStorage.removeItem('username');
                                                 console.log("ĐÃ Đăng Xuất");
-                                                window.location.replace('/QuanLyThuVien/index.php');
+                                                window.location.replace('/ATBM_SGU/QuanLyThuVien/index.php');
                                             }
                                         } catch (e) {
                                             console.error("Lỗi khi xử lý phản hồi:", e);
@@ -484,7 +484,7 @@ require 'admin/DAO/database/connect.php';
 
                     function getUserInfoKH(matk) {
                         $.ajax({
-                            url: '/QuanLyThuVien/admin/DAO/database/fetch_data.php',
+                            url: '/ATBM_SGU/QuanLyThuVien/admin/DAO/database/fetch_data.php',
                             type: 'POST',
                             data: { matk_info: matk },
                             dataType: 'json',
@@ -599,7 +599,7 @@ require 'admin/DAO/database/connect.php';
 
                             // Gửi AJAX
                             $.ajax({
-                                url: '/QuanLyThuVien/admin/DAO/database/fetch_data.php',
+                                url: '/ATBM_SGU/QuanLyThuVien/admin/DAO/database/fetch_data.php',
                                 type: 'POST',
                                 data: formData,
                                 processData: false,

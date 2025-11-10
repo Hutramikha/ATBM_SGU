@@ -10,7 +10,7 @@ if (isset($_SESSION['login_time']) && isset($session_timeout) && isset($_SESSION
         session_destroy();
         echo "<script>
             alert('Phiên đăng nhập đã hết hạn. Bạn sẽ được chuyển về trang chủ.');
-            window.location.href = '/QuanLyThuVien/index.php';
+            window.location.href = '/ATBM_SGU/QuanLyThuVien/index.php';
         </script>";
         exit();
     }
@@ -39,7 +39,7 @@ if (isset($_SESSION['username'])) {
 
     // Kiểm tra quyền và chuyển trang
     if ($_SESSION['maquyen'] == 0 || $_SESSION['maquyen'] == 1) {
-        header("Location: /QuanLyThuVien/admin/GUI/trangadmin.php");
+        header("Location: /ATBM_SGU/QuanLyThuVien/admin/GUI/trangadmin.php");
         exit();
     } elseif ($_SESSION['maquyen'] == 2) {
         $usernameSession = $_SESSION['username'];

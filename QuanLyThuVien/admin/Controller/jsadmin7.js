@@ -1482,7 +1482,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         if (data.status === 'success') {
                             localStorage.removeItem('username');
                             console.log("ĐÃ Đăng Xuất");
-                            window.location.replace('/QuanLyThuVien/index.php?act=danhSachSanPham');
+                            window.location.replace('/ATBM_SGU/QuanLyThuVien/index.php?act=danhSachSanPham');
                         }
                     } catch (e) {
                         console.error("Lỗi khi xử lý phản hồi:", e);

@@ -10,7 +10,7 @@ if (isset($_SESSION['login_time']) && isset($session_timeout) && isset($_SESSION
         session_destroy();
         echo "<script>
             alert('Phiên đăng nhập đã hết hạn. Bạn sẽ được chuyển về trang chủ.');
-            window.location.href = '/QuanLyThuVien/index.php';
+            window.location.href = '/ATBM_SGU/QuanLyThuVien/index.php';
         </script>";
         exit();
     }
@@ -65,7 +65,7 @@ if (isset($_SESSION['username'])) {
         </div>
         <ul class="nav-links">
             <!-- <li class="out-li">
-                <a class="gohome btn" href="/QuanLyThuVien/index.php" style="text-decoration: none;">
+                <a class="gohome btn" href="/ATBM_SGU/QuanLyThuVien/index.php" style="text-decoration: none;">
                     <i class='bx bx-home'></i>
                     <span class="link_name no-select" id="text-visible"> Trang chủ</span>
                 </a>
@@ -1963,7 +1963,7 @@ if (isset($_SESSION['username'])) {
     <div style = "display: none;" id="userInfo" data-username="<?php echo htmlspecialchars($tenDangNhap); ?>"></div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="../Controller/jsadmin6.js"></script>
+    <script src="../Controller/jsadmin7.js"></script>
     <script src="../Controller/ql_sach16.js"></script>
     <script src="../Controller/ql_nv9.js"></script>
     <script src="../Controller/ql_phanquyen2.js"></script>
