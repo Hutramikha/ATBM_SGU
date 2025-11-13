@@ -24,6 +24,7 @@ if (isset($_POST['username_dn']) && isset($_POST['password_dn'])) {
             $_SESSION['username'] = $row['tendangnhap'];
             $_SESSION['maquyen'] = $row['maquyen'];
             $_SESSION['login_time'] = time();
+            // session_regenerate_id(true); // Gọi ngay sau khi xác thực
 
             setcookie("username", $username, time() + (86400 * 1), '/');
             if ($usernameluu !== "" && $passwordluu !== "") {
@@ -39,6 +40,7 @@ if (isset($_POST['username_dn']) && isset($_POST['password_dn'])) {
             $_SESSION['username'] = $row['tendangnhap'];
             $_SESSION['maquyen'] = $row['maquyen'];
             $_SESSION['login_time'] = time();
+            // session_regenerate_id(true); // Gọi ngay sau khi xác thực
 
             setcookie("username", $username, time() + (86400 * 1), '/');
             if ($usernameluu !== "" && $passwordluu !== "") {
