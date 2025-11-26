@@ -1,7 +1,16 @@
 <?php
+session_set_cookie_params([
+    'lifetime' => 0,                // session tồn tại đến khi đóng trình duyệt
+    'path' => '/',
+    'domain' => '',                 // để trống = chỉ domain hiện tại
+    'secure' => true,               // chỉ gửi qua HTTPS
+    'httponly' => true,             // ngăn JavaScript truy cập cookie
+    'samesite' => 'Strict'          // không gửi cookie khi request từ site khác
+]);
+
 require 'admin/DAO/database/connect.php';
 session_start();
-$session_timeout = 10800; // 3 tiếng
+$session_timeout = 150;
 
 // Kiểm tra timeout trước
 if (isset($_SESSION['login_time']) && isset($session_timeout) && isset($_SESSION['username'])) {
@@ -91,24 +100,60 @@ mysqli_close($connect);
 </body>
 </html>
 
+<script>
+    function updateSession() {
+        fetch('/ATBM_SGU/QuanLyThuVien/update_session.php');
+    }
+
+    // Lắng nghe các thao tác người dùng
+    document.addEventListener('click', updateSession);
+    document.addEventListener('scroll', updateSession);
+    document.addEventListener('keydown', updateSession);
+</script>
+
 <?php if (isset($_SESSION['login_time']) && isset($session_timeout) && isset($_SESSION['username'])) : ?>
-    <script>
-        const loginTime = <?php echo $_SESSION['login_time']; ?> * 1000; // chuyển sang ms
-        const timeout = <?php echo $session_timeout; ?> * 1000; // ms
+<script>
+const timeout = <?php echo $session_timeout; ?> * 1000;
+let reloadTimer = null;
+let expiredHandled = false; // tránh reload nhiều lần
 
-        const now = Date.now(); // thời gian thực tế trên client
-        const elapsed = now - loginTime;
-        const remaining = timeout - elapsed;
+function scheduleReload() {
+    fetch('/ATBM_SGU/QuanLyThuVien/get_session.php')
+        .then(res => res.text())
+        .then(loginTimeStr => {
+            const loginTime = parseInt(loginTimeStr) * 1000;
 
-        if (remaining > 0) {
-            setTimeout(() => {
-            location.reload();
-        }, remaining);
+            // Nếu chưa login thì bỏ qua
+            if (!loginTime || loginTime === 0) return;
+
+            const now = Date.now();
+            const remaining = (loginTime + timeout) - now;
+
+            if (reloadTimer) clearTimeout(reloadTimer);
+
+            if (remaining > 0) {
+                // đặt hẹn reload một lần duy nhất
+                reloadTimer = setTimeout(() => {
+                    location.reload();
+                }, remaining);
             } else {
-                location.reload();
+                // hết hạn thì reload ngay, nhưng chỉ một lần
+                if (!expiredHandled) {
+                    expiredHandled = true;
+                    location.reload();
+                }
             }
-    </script>
+        });
+}
+
+scheduleReload();
+</script>
 <?php endif; ?>
+
+
+
+
+
 
 <?php
 include "./model/pdo.php";

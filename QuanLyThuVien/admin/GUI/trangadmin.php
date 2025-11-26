@@ -1,7 +1,16 @@
 <?php
+session_set_cookie_params([
+    'lifetime' => 0,                // session tồn tại đến khi đóng trình duyệt
+    'path' => '/',
+    'domain' => '',                 // để trống = chỉ domain hiện tại
+    'secure' => true,               // chỉ gửi qua HTTPS
+    'httponly' => true,             // ngăn JavaScript truy cập cookie
+    'samesite' => 'Strict'          // không gửi cookie khi request từ site khác
+]);
+
 require '../DAO/database/connect.php'; 
 session_start();
-$session_timeout = 10800; // 3 tiếng
+$session_timeout = 150;
 
 // Kiểm tra phía server (nếu có request)
 if (isset($_SESSION['login_time']) && isset($session_timeout) && isset($_SESSION['username'])) {
@@ -56,6 +65,7 @@ if (isset($_SESSION['username'])) {
     <link rel="stylesheet" href="./style/styleadmin13.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
+
 
 <body>
     <div class="admin_sidebar close">
@@ -1988,23 +1998,72 @@ if (isset($_SESSION['username'])) {
     </script>
 
     <?php if (isset($_SESSION['login_time']) && isset($session_timeout) && isset($_SESSION['username'])) : ?>
-    <script>
-        const loginTime = <?php echo $_SESSION['login_time']; ?> * 1000; // chuyển sang ms
-        const timeout = <?php echo $session_timeout; ?> * 1000; // ms
+        <script>
+            if (!window.sessionTrackerInitialized) {
+            window.sessionTrackerInitialized = true;
 
-        const now = Date.now(); // thời gian thực tế trên client
-        const elapsed = now - loginTime;
-        const remaining = timeout - elapsed;
+            const timeout = <?php echo $session_timeout; ?> * 1000;
+            let reloadTimer = null;
+            let expiredHandled = false;
+            let debounceTimer = null;
+            let scheduleRunning = false;
 
-        if (remaining > 0) {
-            setTimeout(() => {
-                location.reload();
-            }, remaining);
-        } else {
-            location.reload();
+            // --- Hàm cập nhật session lên server ---
+            function updateSession() {
+                clearTimeout(debounceTimer);
+
+                debounceTimer = setTimeout(() => {
+                    fetch('/ATBM_SGU/QuanLyThuVien/update_session.php')
+                        .then(() => scheduleReload());
+                }, 300);
+            }
+
+            // --- Lên lịch reload nếu hết hạn ---
+            function scheduleReload() {
+                if (scheduleRunning) return; // chặn chạy song song
+                scheduleRunning = true;
+
+                fetch('/ATBM_SGU/QuanLyThuVien/get_session.php')
+                    .then(res => res.text())
+                    .then(loginTimeStr => {
+                        scheduleRunning = false;
+
+                        const loginTime = parseInt(loginTimeStr) * 1000;
+                        if (!loginTime) return;
+
+                        const now = Date.now();
+                        const remaining = (loginTime + timeout) - now;
+
+                        // Xóa timer cũ để tránh chồng timeout
+                        if (reloadTimer) clearTimeout(reloadTimer);
+
+                        if (remaining > 0) {
+                            reloadTimer = setTimeout(() => {
+                                if (!expiredHandled) {
+                                    expiredHandled = true;
+                                    location.reload();
+                                }
+                            }, remaining);
+                        } else {
+                            if (!expiredHandled) {
+                                expiredHandled = true;
+                                location.reload();
+                            }
+                        }
+                    });
+            }
+
+            // --- Lắng nghe thao tác người dùng ---
+            document.addEventListener('click', updateSession);
+            document.addEventListener('scroll', updateSession);
+            document.addEventListener('keydown', updateSession);
+
+            // --- Gọi lần đầu ---
+            scheduleReload();
         }
-    </script>
+        </script>
     <?php endif; ?>
+
 </body>
 
 </html>
