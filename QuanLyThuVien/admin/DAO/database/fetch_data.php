@@ -1217,59 +1217,66 @@ if (isset($_POST['action'])) {
 
     if ($action == 'updateDocGia') {
         // Lấy dữ liệu từ form
-        $madg = $_POST['madg']; // Mã độc giả cần cập nhật
-        $ten = $_POST['ten'];
-        $gioitinh = $_POST['gioitinh'];
-        $ngaysinh = $_POST['ngaysinh'];
-        $sdt = $_POST['sdt'];
-        $diachi = $_POST['diachi'];
-        $email = $_POST['email'];
+        $madg = intval($_POST['madg']); // Mã độc giả cần cập nhật
+        $ten = trim($_POST['ten']);
+        $gioitinh = trim($_POST['gioitinh']);
+        $ngaysinh = trim($_POST['ngaysinh']);
+        $sdt = trim($_POST['sdt']);
+        $diachi = trim($_POST['diachi']);
+        $email = trim($_POST['email']);
+        $imageFileName = null;
 
         // Xử lý hình ảnh
-        $imageFile = null;
         if (isset($_FILES['img']['name']) && $_FILES['img']['error'] === UPLOAD_ERR_OK) {
-            $imageFile = $_FILES['img']['name'];
             $uploadDir = "../../avatar/"; // Thư mục lưu trữ hình ảnh
-            $hinhanhpath = basename($_FILES['img']['name']);
-            $image = $uploadDir . $hinhanhpath;
+            
+            // Kiểm tra thư mục tồn tại
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+
+            $imageFileName = basename($_FILES['img']['name']);
+            $imagePath = $uploadDir . $imageFileName;
 
             // Di chuyển tệp hình ảnh
-            if (!move_uploaded_file($_FILES['img']['tmp_name'], $image)) {
-                $image = null; // Không cập nhật nếu không di chuyển được
+            if (!move_uploaded_file($_FILES['img']['tmp_name'], $imagePath)) {
+                $imageFileName = null; // Không cập nhật nếu không di chuyển được
             }
         }
 
         // Chuẩn bị câu lệnh cập nhật độc giả
-        if ($imageFile != null) {
+        if ($imageFileName != null) {
             $sql = "UPDATE docgia SET ten=?, gioitinh=?, ngaysinh=?, email=?, sdt=?, diachi=?, img=? WHERE madg=?";
+            $stmt = $connect->prepare($sql);
+            if ($stmt === false) {
+                die('Lỗi chuẩn bị câu lệnh: ' . $connect->error);
+            }
+            // 7 string (ten, gioitinh, ngaysinh, email, sdt, diachi, img) + 1 integer (madg)
+            $stmt->bind_param("sssssssi", $ten, $gioitinh, $ngaysinh, $email, $sdt, $diachi, $imageFileName, $madg);
         } else {
             $sql = "UPDATE docgia SET ten=?, gioitinh=?, ngaysinh=?, email=?, sdt=?, diachi=? WHERE madg=?";
-        }
-
-        $stmt = $connect->prepare($sql);
-        if ($stmt === false) {
-            die('Lỗi chuẩn bị câu lệnh: ' . $connect->error);
-        }
-
-        // Bind các tham số
-        if ($imageFile != null) {
-            $stmt->bind_param("sssssssi", $ten, $gioitinh, $ngaysinh, $email, $sdt, $diachi, $imageFile, $madg);
-        } else {
-            // Nếu không có hình ảnh mới, không cập nhật trường img
+            $stmt = $connect->prepare($sql);
+            if ($stmt === false) {
+                die('Lỗi chuẩn bị câu lệnh: ' . $connect->error);
+            }
+            // 6 string (ten, gioitinh, ngaysinh, email, sdt, diachi) + 1 integer (madg)
             $stmt->bind_param("ssssssi", $ten, $gioitinh, $ngaysinh, $email, $sdt, $diachi, $madg);
         }
 
         if ($stmt->execute()) {
+            $connect->commit(); // Commit transaction
             $list_sua_dg[] = array(
                 "status" => "success",
                 "message" => "Cập nhật độc giả thành công!",
             );
         } else {
+            $connect->rollback(); // Rollback nếu lỗi
             $list_sua_dg[] = array(
                 "status" => "fail",
                 "message" => "Lỗi: " . $stmt->error,
             );
         }
+        $stmt->close();
     }
 }
 
@@ -1944,7 +1951,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'updateTaiKhoan') {
         // Là độc giả
         $sql_check_dg = "SELECT madg FROM docgia WHERE matk = ?";
         $stmt_check_dg = $connect->prepare($sql_check_dg);
-        $stmt_check_dg->bind_param("i", $matk);
+        $stmt_check_dg->bind_param("s", $matk);
         $stmt_check_dg->execute();
         $result_dg = $stmt_check_dg->get_result();
 

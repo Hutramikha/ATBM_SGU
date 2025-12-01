@@ -25,8 +25,12 @@ if (isset($_POST['username_dn']) && isset($_POST['password_dn'])) {
             $_SESSION['maquyen'] = $row['maquyen'];
             $_SESSION['login_time'] = time();
             // session_regenerate_id(true); // Gọi ngay sau khi xác thực
+            // lưu thông tin ràng buộc
+            $_SESSION['ip'] = $_SERVER['REMOTE_ADDR'];
+            $_SESSION['ua'] = $_SERVER['HTTP_USER_AGENT'];
+            $_SESSION['authenticated'] = true;
 
-            setcookie("username", $username, time() + (86400 * 1), '/');
+            // setcookie("username", $username, time() + (86400 * 1), '/');
             if ($usernameluu !== "" && $passwordluu !== "") {
                 setcookie("user", $usernameluu, time() + (86400 * 7), '/');
                 setcookie("pass", $passwordluu, time() + (86400 * 7), '/');
@@ -41,8 +45,12 @@ if (isset($_POST['username_dn']) && isset($_POST['password_dn'])) {
             $_SESSION['maquyen'] = $row['maquyen'];
             $_SESSION['login_time'] = time();
             // session_regenerate_id(true); // Gọi ngay sau khi xác thực
+            // lưu thông tin ràng buộc
+            $_SESSION['ip'] = $_SERVER['REMOTE_ADDR'];
+            $_SESSION['ua'] = $_SERVER['HTTP_USER_AGENT'];
+            $_SESSION['authenticated'] = true;
 
-            setcookie("username", $username, time() + (86400 * 1), '/');
+            // setcookie("username", $username, time() + (86400 * 1), '/');
             if ($usernameluu !== "" && $passwordluu !== "") {
                 setcookie("user", $usernameluu, time() + (86400 * 7), '/');
                 setcookie("pass", $passwordluu, time() + (86400 * 7), '/');

@@ -8,6 +8,16 @@ session_set_cookie_params([
     'samesite' => 'Strict'          // không gửi cookie khi request từ site khác
 ]);
 
+// Nếu đã đăng nhập thì kiểm tra IP và User-Agent
+if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === true) {
+    if ($_SESSION['ip'] !== $_SERVER['REMOTE_ADDR'] ||
+        $_SESSION['ua'] !== $_SERVER['HTTP_USER_AGENT']) {
+        // Nếu không khớp thì hủy session
+        session_unset();
+        session_destroy();
+    }
+}
+
 require 'admin/DAO/database/connect.php';
 session_start();
 $session_timeout = 150;
@@ -149,9 +159,6 @@ function scheduleReload() {
 scheduleReload();
 </script>
 <?php endif; ?>
-
-
-
 
 
 
